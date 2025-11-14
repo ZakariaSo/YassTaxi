@@ -1,6 +1,6 @@
 
-
-export const storage = new MMKV();
+import { createMMKV } from 'react-native-mmkv';
+export const storage = createMMKV()
 
 export const StorageKeys = {
   RIDE_HISTORY: 'ride_history',
@@ -39,5 +39,5 @@ export const deleteRide = (id: string) => {
 };
 
 export const clearHistory = () => {
-  storage.delete(StorageKeys.RIDE_HISTORY);
+  storage.remove(StorageKeys.RIDE_HISTORY);
 };
