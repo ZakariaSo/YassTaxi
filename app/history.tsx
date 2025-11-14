@@ -20,7 +20,7 @@ export default function HistoryScreen() {
     getTotalSpent, 
     getTotalRides 
   } = useStore();
-
+  
   // Debug : Afficher l'historique au chargement
   useEffect(() => {
     console.log('📊 Historique chargé:', rideHistory.length, 'courses');
