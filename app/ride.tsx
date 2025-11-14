@@ -100,7 +100,7 @@ export default function RideScreen() {
           style: 'destructive',
           onPress: () => {
             endRide();
-            router.replace('/history');
+            router.push('/history');
           },
         },
       ]

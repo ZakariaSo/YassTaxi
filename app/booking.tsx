@@ -17,8 +17,8 @@ export default function BookingScreen() {
   const router = useRouter();
   const { isNightMode, startRide } = useStore();
 
-  const [departure, setDeparture] = useState<Location>(LOCATIONS[1]); // Gare
-  const [destination, setDestination] = useState<Location>(LOCATIONS[2]); // Morocco Mall
+  const [departure, setDeparture] = useState<Location>(LOCATIONS[1]); 
+  const [destination, setDestination] = useState<Location>(LOCATIONS[2]); 
 
   const [showDepartureModal, setShowDepartureModal] = useState(false);
   const [showDestinationModal, setShowDestinationModal] = useState(false);
