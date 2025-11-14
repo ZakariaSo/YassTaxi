@@ -1,18 +1,31 @@
-import React from 'react';
+import { router } from 'expo-router';
+import React, { useEffect } from 'react';
 import {
-    Alert,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { RideCard } from '../components/RideCard';
 import { useStore } from '../store/useStore';
 
 export default function HistoryScreen() {
-  const { rideHistory, removeFromHistory, clearHistory, getTotalSpent, getTotalRides } = useStore();
+  const { 
+    rideHistory, 
+    removeFromHistory, 
+    clearHistory, 
+    getTotalSpent, 
+    getTotalRides 
+  } = useStore();
+
+  // Debug : Afficher l'historique au chargement
+  useEffect(() => {
+    console.log('📊 Historique chargé:', rideHistory.length, 'courses');
+    console.log('📋 Détails:', rideHistory);
+  }, [rideHistory]);
 
   const handleDelete = (id: string) => {
     Alert.alert(
@@ -23,7 +36,10 @@ export default function HistoryScreen() {
         {
           text: 'Supprimer',
           style: 'destructive',
-          onPress: () => removeFromHistory(id),
+          onPress: () => {
+            console.log('Suppression de:', id);
+            removeFromHistory(id);
+          },
         },
       ]
     );
@@ -40,21 +56,31 @@ export default function HistoryScreen() {
         {
           text: 'Tout effacer',
           style: 'destructive',
-          onPress: clearHistory,
+          onPress: () => {
+            console.log('Effacement de tout l\'historique');
+            clearHistory();
+          },
         },
       ]
     );
   };
 
+  // Afficher le nombre de courses dans la console
+  console.log('🔄 Rendu du composant History avec', rideHistory.length, 'courses');
+
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+     <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.push('/')}>
+          <Text style={styles.backBtn}>← </Text>
+        </TouchableOpacity>
         <Text style={styles.title}>📋 Historique</Text>
         {rideHistory.length > 0 && (
           <TouchableOpacity onPress={handleClearAll}>
             <Text style={styles.clearBtn}>🗑️ Effacer tout</Text>
           </TouchableOpacity>
+          
         )}
       </View>
 
@@ -68,6 +94,13 @@ export default function HistoryScreen() {
           <Text style={styles.statValue}>{getTotalSpent().toFixed(2)} DH</Text>
           <Text style={styles.statLabel}>Total dépensé</Text>
         </View>
+      </View>
+
+      {/* Debug Info */}
+      <View style={styles.debugBox}>
+        <Text style={styles.debugText}>
+          🔍 Debug: {rideHistory.length} course(s) dans l'historique
+        </Text>
       </View>
 
       {/* Liste des courses */}
@@ -85,13 +118,16 @@ export default function HistoryScreen() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         >
-          {rideHistory.map((ride) => (
-            <RideCard
-              key={ride.id}
-              ride={ride}
-              onDelete={() => handleDelete(ride.id)}
-            />
-          ))}
+          {rideHistory.map((ride, index) => {
+            console.log(`Affichage de la course ${index}:`, ride.id);
+            return (
+              <RideCard
+                key={ride.id}
+                ride={ride}
+                onDelete={() => handleDelete(ride.id)}
+              />
+            );
+          })}
           <View style={styles.listFooter}>
             <Text style={styles.footerText}>
               Fin de l'historique
@@ -110,7 +146,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
@@ -123,6 +159,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#111827',
+    marginLeft: 80
   },
   clearBtn: {
     fontSize: 14,
@@ -155,6 +192,20 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
     color: '#6B7280',
+  },
+  debugBox: {
+    backgroundColor: '#DBEAFE',
+    padding: 12,
+    marginHorizontal: 20,
+    marginBottom: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#3B82F6',
+  },
+  debugText: {
+    fontSize: 13,
+    color: '#1E40AF',
+    fontWeight: '600',
   },
   list: {
     flex: 1,
@@ -191,5 +242,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#6B7280',
     textAlign: 'center',
+  },
+    backBtn: {
+    fontSize:25,
+    color: '#EF4444',
+    fontWeight: '600',
   },
 });
