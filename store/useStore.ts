@@ -47,34 +47,57 @@ export const useStore = create<StoreState>((set, get) => ({
 
   // Actions course
   setCurrentRide: (ride) => set({ currentRide: ride }),
-  startRide: (ride) => set({ currentRide: ride }),
+  startRide: (ride) => {
+    console.log('🚀 Démarrage de la course:', ride);
+    set({ currentRide: ride });
+  },
+  
   endRide: () => {
     const { currentRide, addToHistory } = get();
+    console.log('🏁 Fin de course:', currentRide);
+    
     if (currentRide) {
       addToHistory(currentRide);
+      console.log('✅ Course ajoutée à l\'historique');
+    } else {
+      console.warn('⚠️ Aucune course en cours à terminer');
     }
+    
     set({ currentRide: null });
   },
 
   // Actions historique
-  addToHistory: (ride) =>
-    set((state) => ({
-      rideHistory: [ride, ...state.rideHistory],
-    })),
+  addToHistory: (ride) => {
+    console.log('📝 Ajout à l\'historique:', ride);
+    set((state) => {
+      const newHistory = [ride, ...state.rideHistory];
+      console.log('📚 Nouvel historique:', newHistory.length, 'courses');
+      return { rideHistory: newHistory };
+    });
+  },
   
-  removeFromHistory: (id) =>
+  removeFromHistory: (id) => {
+    console.log('🗑️ Suppression de la course:', id);
     set((state) => ({
       rideHistory: state.rideHistory.filter((ride) => ride.id !== id),
-    })),
+    }));
+  },
   
-  clearHistory: () => set({ rideHistory: [] }),
+  clearHistory: () => {
+    console.log('🧹 Nettoyage de l\'historique');
+    set({ rideHistory: [] });
+  },
 
   // Getters stats
   getTotalSpent: () => {
-    return get().rideHistory.reduce((sum, ride) => sum + ride.price, 0);
+    const total = get().rideHistory.reduce((sum, ride) => sum + ride.price, 0);
+    console.log('💰 Total dépensé:', total);
+    return total;
   },
   
   getTotalRides: () => {
-    return get().rideHistory.length;
+    const count = get().rideHistory.length;
+    console.log('🚕 Nombre de courses:', count);
+    return count;
   },
 }));

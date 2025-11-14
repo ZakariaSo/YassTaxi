@@ -1,14 +1,14 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
+  Alert,
 
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
@@ -84,7 +84,7 @@ export default function RideScreen() {
           longitude: currentRide.departure.longitude + (lngDiff * taxiProgress) / 100,
         };
       });
-    }, 1000);
+    }, 800);
 
     return () => clearInterval(interval);
   }, [taxiProgress, currentRide]);
@@ -99,7 +99,7 @@ export default function RideScreen() {
           text: 'Oui, annuler',
           style: 'destructive',
           onPress: () => {
-            endRide();
+            // endRide();
             router.push('/history');
           },
         },
@@ -117,7 +117,7 @@ export default function RideScreen() {
         {
           text: 'OK',
           onPress: () => {
-            endRide();
+            // endRide();
             router.push('/history');
           },
         },
@@ -212,7 +212,7 @@ export default function RideScreen() {
               <Text style={styles.driverInitial}>Z</Text>
             </View>
             <View style={styles.driverDetails}>
-              <Text style={styles.driverName}>Zakatia Sobahi</Text>
+              <Text style={styles.driverName}>Zakaria Sobahi</Text>
               <View style={styles.ratingContainer}>
                 <Text style={styles.rating}>⭐ 4.9</Text>
                 <Text style={styles.carInfo}>🚗 Petit Taxi Rouge • 4521</Text>
