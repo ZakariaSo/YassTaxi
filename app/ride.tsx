@@ -2,17 +2,36 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
     Alert,
+
     Platform,
+    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { PriceCounter } from '../components/PriceCounter';
 import { useStore } from '../store/useStore';
 
 export default function RideScreen() {
+     const offset = useSharedValue({ y: 0 });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: offset.value.y }],
+  }));
+  
+  const panGesture = Gesture.Pan()
+    .onUpdate((e) => {
+        const maxUp = 0;
+        const maxDown = 400;
+    
+      offset.value = {
+        y: Math.min(Math.max(e.translationY, maxUp), maxDown),
+      };
+    })
+  
   const router = useRouter();
   const { currentRide, endRide, isNightMode } = useStore();
 
@@ -81,7 +100,7 @@ export default function RideScreen() {
           style: 'destructive',
           onPress: () => {
             endRide();
-            router.replace('/');
+            router.push('/history');
           },
         },
       ]
@@ -91,7 +110,7 @@ export default function RideScreen() {
   const handleComplete = () => {
     Alert.alert(
       'Course terminée',
-      `Merci d'avoir utilisé Petit Taxi Casa !\nPrix final: ${currentRide?.price.toFixed(
+      `Merci d'avoir utilisé YassTaxi Casa !\nPrix final: ${currentRide?.price.toFixed(
         2
       )} DH`,
       [
@@ -99,7 +118,7 @@ export default function RideScreen() {
           text: 'OK',
           onPress: () => {
             endRide();
-            router.replace('/');
+            router.push('/history');
           },
         },
       ]
@@ -176,89 +195,94 @@ export default function RideScreen() {
         </Marker>
 
         {/* Taxi en mouvement */}
-        <Marker coordinate={taxiPosition}  image={require("../assets/taxi1.png")}>
-        
+        <Marker coordinate={taxiPosition} image={require("../assets/taxi1.png")}>
         </Marker>
       </MapView>
 
-      {/* Informations de la course */}
-      <View style={styles.rideInfo}>
-        {/* Carte chauffeur */}
-        <View style={styles.driverCard}>
-          <View style={styles.driverAvatar}>
-            <Text style={styles.driverInitial}>M</Text>
-          </View>
-          <View style={styles.driverDetails}>
-            <Text style={styles.driverName}>Mohamed Alami</Text>
-            <View style={styles.ratingContainer}>
-              <Text style={styles.rating}>⭐ 4.8</Text>
-              <Text style={styles.ratingCount}>(234 courses)</Text>
+      {/* Informations de la course - Version compacte */}
+      <GestureDetector gesture={panGesture}>
+      <Animated.View style={[styles.rideInfo,animatedStyle]}>
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Carte chauffeur - Version compacte */}
+          <View style={styles.driverCard}>
+            <View style={styles.driverAvatar}>
+              <Text style={styles.driverInitial}>Z</Text>
             </View>
-            <Text style={styles.carInfo}>🚗 Petit Taxi Rouge • 4521</Text>
+            <View style={styles.driverDetails}>
+              <Text style={styles.driverName}>Zakatia Sobahi</Text>
+              <View style={styles.ratingContainer}>
+                <Text style={styles.rating}>⭐ 4.9</Text>
+                <Text style={styles.carInfo}>🚗 Petit Taxi Rouge • 4521</Text>
+              </View>
+            </View>
           </View>
-        </View>
 
-        {/* Détails du trajet */}
-        <View style={styles.tripDetails}>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailIcon}>⏱️</Text>
-            <Text style={styles.detailText}>{formatTime(timer)}</Text>
+          {/* Détails du trajet */}
+          <View style={styles.tripDetails}>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailIcon}>⏱️</Text>
+              <Text style={styles.detailText}>{formatTime(timer)}</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailIcon}>📏</Text>
+              <Text style={styles.detailText}>{currentRide.distance.toFixed(1)} km</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailIcon}>{isNightMode ? '🌙' : '☀️'}</Text>
+              <Text style={styles.detailText}>{isNightMode ? 'Nuit' : 'Jour'}</Text>
+            </View>
           </View>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailIcon}>📏</Text>
-            <Text style={styles.detailText}>{currentRide.distance.toFixed(1)} km</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailIcon}>{isNightMode ? '🌙' : '☀️'}</Text>
-            <Text style={styles.detailText}>{isNightMode ? 'Nuit' : 'Jour'}</Text>
-          </View>
-        </View>
 
-        {/* Compteur de prix */}
-        <PriceCounter
-          initialPrice={currentRide.price}
-          isRunning={taxiProgress < 100}
-          incrementRate={0.5}
-        />
+          {/* Compteur de prix */}
+          <PriceCounter
+            initialPrice={currentRide.price}
+            isRunning={taxiProgress < 100}
+            incrementRate={0.5}
+          />
 
-        {/* Route */}
-        <View style={styles.routeCard}>
-          <View style={styles.routeItem}>
-            <Text style={styles.routeIcon}>📍</Text>
-            <Text style={styles.routeText}>{currentRide.departure.name}</Text>
+          {/* Route - Version compacte */}
+          <View style={styles.routeCard}>
+            <View style={styles.routeItem}>
+              <Text style={styles.routeIcon}>📍</Text>
+              <Text style={styles.routeText} numberOfLines={1}>{currentRide.departure.name}</Text>
+            </View>
+            <View style={styles.routeArrow}>
+              <Text style={styles.arrowText}>→</Text>
+            </View>
+            <View style={styles.routeItem}>
+              <Text style={styles.routeIcon}>🎯</Text>
+              <Text style={styles.routeText} numberOfLines={1}>{currentRide.destination.name}</Text>
+            </View>
           </View>
-          <View style={styles.routeArrow}>
-            <Text style={styles.arrowText}>↓</Text>
-          </View>
-          <View style={styles.routeItem}>
-            <Text style={styles.routeIcon}>🎯</Text>
-            <Text style={styles.routeText}>{currentRide.destination.name}</Text>
-          </View>
-        </View>
 
-        {/* Barre de progression */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${taxiProgress}%` }]} />
+          {/* Barre de progression */}
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${taxiProgress}%` }]} />
+            </View>
+            <Text style={styles.progressText}>
+              {taxiProgress >= 100 ? 'Arrivée !' : `${Math.round(taxiProgress)}%`}
+            </Text>
           </View>
-          <Text style={styles.progressText}>
-            {taxiProgress >= 100 ? 'Arrivée !' : `${Math.round(taxiProgress)}% du trajet`}
-          </Text>
-        </View>
 
-        {/* Boutons d'action */}
-        <View style={styles.actionButtons}>
-          {taxiProgress < 100 ? (
-            <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
-              <Text style={styles.cancelBtnText}>✕ Annuler la course</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={styles.completeBtn} onPress={handleComplete}>
-              <Text style={styles.completeBtnText}>✓ Terminer la course</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+          {/* Boutons d'action */}
+          <View style={styles.actionButtons}>
+            {taxiProgress < 100 ? (
+              <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
+                <Text style={styles.cancelBtnText}>✕ Annuler</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.completeBtn} onPress={handleComplete}>
+                <Text style={styles.completeBtnText}>✓ Terminer</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
+      </Animated.View>
+        </GestureDetector>
     </View>
   );
 }
@@ -300,36 +324,41 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFF',
+    maxHeight: '80%', // Limite la hauteur à 50% de l'écran
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    padding: 20,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+    paddingTop: 16,
+    paddingHorizontal: 16,
+    paddingBottom: Platform.OS === 'ios' ? 30 : 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 10,
   },
+  scrollContent: {
+    paddingBottom: 8,
+  },
   driverCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    paddingBottom: 16,
+    marginBottom: 12,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
   driverAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#EF4444',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 10,
   },
   driverInitial: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#FFF',
   },
@@ -337,103 +366,105 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   driverName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#111827',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    gap: 8,
   },
   rating: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#F59E0B',
     fontWeight: '600',
-    marginRight: 4,
   },
   ratingCount: {
     fontSize: 12,
     color: '#6B7280',
   },
   carInfo: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#6B7280',
   },
   tripDetails: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 16,
+    marginBottom: 12,
     backgroundColor: '#F3F4F6',
-    padding: 12,
+    padding: 10,
     borderRadius: 12,
   },
   detailItem: {
     alignItems: 'center',
   },
   detailIcon: {
-    fontSize: 24,
-    marginBottom: 4,
+    fontSize: 20,
+    marginBottom: 2,
   },
   detailText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: '#374151',
   },
   routeCard: {
     backgroundColor: '#F9FAFB',
-    padding: 16,
+    padding: 12,
     borderRadius: 12,
-    marginBottom: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   routeItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   routeIcon: {
-    fontSize: 20,
-    marginRight: 8,
+    fontSize: 16,
+    marginRight: 6,
   },
   routeText: {
-    fontSize: 15,
+    fontSize: 13,
     color: '#374151',
     flex: 1,
   },
   routeArrow: {
-    alignItems: 'center',
-    marginVertical: 8,
+    marginHorizontal: 8,
   },
   arrowText: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#9CA3AF',
   },
   progressContainer: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   progressBar: {
-    height: 8,
+    height: 6,
     backgroundColor: '#E5E7EB',
-    borderRadius: 4,
+    borderRadius: 3,
     overflow: 'hidden',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   progressFill: {
     height: '100%',
     backgroundColor: '#10B981',
-    borderRadius: 4,
+    borderRadius: 3,
   },
   progressText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#6B7280',
     textAlign: 'center',
+    fontWeight: '600',
   },
   actionButtons: {
-    gap: 12,
+    marginTop: 4,
   },
   cancelBtn: {
     backgroundColor: '#FEE2E2',
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 1,
@@ -441,18 +472,18 @@ const styles = StyleSheet.create({
   },
   cancelBtnText: {
     color: '#DC2626',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
   },
   completeBtn: {
     backgroundColor: '#10B981',
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
   },
   completeBtnText: {
     color: '#FFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
   },
 });

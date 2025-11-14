@@ -17,8 +17,8 @@ export default function BookingScreen() {
   const router = useRouter();
   const { isNightMode, startRide } = useStore();
 
-  const [departure, setDeparture] = useState<Location>(LOCATIONS[1]); // Gare
-  const [destination, setDestination] = useState<Location>(LOCATIONS[2]); // Morocco Mall
+  const [departure, setDeparture] = useState<Location>(LOCATIONS[1]); 
+  const [destination, setDestination] = useState<Location>(LOCATIONS[2]); 
 
   const [showDepartureModal, setShowDepartureModal] = useState(false);
   const [showDestinationModal, setShowDestinationModal] = useState(false);
@@ -95,7 +95,7 @@ export default function BookingScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backBtn}>← Retour</Text>
+          <Text style={styles.backBtn}>← </Text>
         </TouchableOpacity>
         <Text style={styles.title}>Réservation</Text>
         <View style={{ width: 60 }} />
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E7EB',
   },
   backBtn: {
-    fontSize: 16,
+    fontSize:25,
     color: '#EF4444',
     fontWeight: '600',
   },
